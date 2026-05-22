@@ -10,17 +10,27 @@ use App\Models\Reference;
 
 final class TacheController extends Controller
 {
-    // GET /index.php?r=tache/index[&statut=2]
+    // GET /index.php?r=tache/index[&statut=2&q=foo&page=1]
     public function index(): void
     {
-        $statut = $_GET['statut'] ?? null;
-        $taches = Tache::all($statut);
-        $statuts = Reference::statuts();
+        $statut  = $_GET['statut'] ?? null;
+        $search  = trim((string) ($_GET['q'] ?? '')) ?: null;
+        $page    = max(1, (int) ($_GET['page'] ?? 1));
+        $perPage = 20;
+
+        $taches    = Tache::all($statut, $search, $page, $perPage);
+        $total     = Tache::count($statut, $search);
+        $totalPages = max(1, (int) ceil($total / $perPage));
+        $statuts   = Reference::statuts();
 
         $this->render('tache/index', [
             'taches'        => $taches,
             'statuts'       => $statuts,
             'filterStatut'  => $statut,
+            'search'        => $search,
+            'page'          => $page,
+            'totalPages'    => $totalPages,
+            'total'         => $total,
         ], 'Liste des tâches');
     }
 

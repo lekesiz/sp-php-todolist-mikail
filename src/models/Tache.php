@@ -13,7 +13,7 @@ use PDO;
 
 final class Tache
 {
-    public static function all(?string $filterStatut = null): array
+    public static function all(?string $filterStatut = null, ?string $search = null, int $page = 1, int $perPage = 20): array
     {
         $sql = "
             SELECT t.*,
@@ -31,11 +31,41 @@ final class Tache
             $sql .= ' AND t.idStatut = :idStatut';
             $params[':idStatut'] = (int) $filterStatut;
         }
+        if ($search !== null && $search !== '') {
+            // FIX: full-text-ish recherche sur titre + description, paramétrée.
+            $sql .= ' AND (t.titreTache LIKE :search OR t.descriptionTache LIKE :search)';
+            $params[':search'] = '%' . $search . '%';
+        }
         $sql .= ' ORDER BY p.niveauPriorite DESC, t.dateEcheance ASC, t.dateCreation DESC';
+
+        // Pagination — bornes saines pour éviter LIMIT négatif
+        $page    = max(1, $page);
+        $perPage = max(1, min(100, $perPage));
+        $offset  = ($page - 1) * $perPage;
+        $sql .= " LIMIT $perPage OFFSET $offset";  // entiers déjà sanitizés ci-dessus
 
         $stmt = Database::getInstance()->prepare($sql);
         $stmt->execute($params);
         return $stmt->fetchAll();
+    }
+
+    /** Compte total de tâches filtrées (pour la pagination). */
+    public static function count(?string $filterStatut = null, ?string $search = null): int
+    {
+        $sql = "SELECT COUNT(*) AS n FROM tache t WHERE 1=1";
+        $params = [];
+        if ($filterStatut !== null && $filterStatut !== '') {
+            $sql .= ' AND t.idStatut = :idStatut';
+            $params[':idStatut'] = (int) $filterStatut;
+        }
+        if ($search !== null && $search !== '') {
+            $sql .= ' AND (t.titreTache LIKE :search OR t.descriptionTache LIKE :search)';
+            $params[':search'] = '%' . $search . '%';
+        }
+        $stmt = Database::getInstance()->prepare($sql);
+        $stmt->execute($params);
+        $row = $stmt->fetch();
+        return (int) ($row['n'] ?? 0);
     }
 
     public static function find(int $id): ?array

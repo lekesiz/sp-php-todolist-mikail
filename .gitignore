@@ -30,3 +30,6 @@ tmp/
 # Smoke test artefacts
 *.sqlite
 *.db
+
+# Local DB credentials
+config/config.php
