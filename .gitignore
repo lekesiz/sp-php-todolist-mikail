@@ -1,0 +1,32 @@
+# Environnement local
+.DS_Store
+Thumbs.db
+*.log
+.env
+.env.local
+
+# Configuration locale (contient mot de passe DB)
+# config/config.php  # à activer si tu commits config.example.php
+config/config.local.php
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Dépendances (si Composer ajouté plus tard)
+vendor/
+composer.lock
+
+# Build / cache
+cache/
+tmp/
+
+# Tests
+/tests/coverage/
+.phpunit.result.cache
+
+# Smoke test artefacts
+*.sqlite
+*.db

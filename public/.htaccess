@@ -1,0 +1,10 @@
+# Empêche le listing de répertoire
+Options -Indexes
+
+# Forwarde toutes les requêtes inexistantes vers index.php (front controller)
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^ index.php [L]
+</IfModule>
