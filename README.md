@@ -6,6 +6,17 @@ de M. Christoffel (22/05/2026) :
 
 > *« le dév App PHP est maintenant un travail individuel. »*
 
+## 🔗 Application en ligne
+
+> **À DÉFINIR APRÈS DÉPLOIEMENT** — sera renseigné une fois le site activé sur AlwaysData.
+>
+> Pattern attendu : `https://<sous-domaine>.alwaysdata.net/`
+
+## 📦 Export SQL
+
+Le dump SQL avec données est disponible à la racine : [`database.sql`](./database.sql)
+(8 tables, 5 collaborateurs, 10 tâches, 11 affectations avec % d'investissement).
+
 ## Auteur
 **Mikail Lekesiz** — LP DWCA 2025/2026 — Université de Strasbourg
 Tuteur : M. Eric Christoffel — UE 6.1 Développement Back-End
@@ -55,23 +66,101 @@ todoList-app/
 │   ├── tache/                 # index, form, show
 │   ├── collaborateur/         # index, form
 │   └── error/                 # 404, 500
-├── config/config.php          # paramètres DB et app
-├── sql/install.sql            # schéma v2 validé + jeux de tests
+├── config/
+│   ├── config.php             # env-driven, commité (pas de secrets)
+│   ├── config.example.php     # modèle pour config.local.php
+│   └── config.local.php       # (gitignored) override dev local
+├── sql/install.sql            # schéma + données, version locale (avec CREATE DATABASE)
+├── database.sql               # schéma + données, version prod (sans CREATE DATABASE)
 └── README.md
 ```
 
 ## Installation locale (MAMP / XAMPP / WAMP)
 
-1. **Cloner ou copier** le dossier `todoList-app/` dans la docroot du serveur web local (ou créer un VirtualHost pointant sur `public/`).
+1. **Cloner** le repo dans la docroot du serveur web local (ou créer un VirtualHost pointant sur `public/`) :
+   ```bash
+   git clone https://github.com/lekesiz/sp-php-todolist-mikail.git
+   cd sp-php-todolist-mikail
+   ```
 2. **Importer la base** :
    ```bash
    mysql -u root -p < sql/install.sql
    ```
    ou via phpMyAdmin : *Importer* → `sql/install.sql`.
-3. **Adapter** `config/config.php` (utilisateur/mot de passe DB).
+3. **Configuration** — deux options :
+   - **A. Aucune action** si vos identifiants DB sont `root` / `root` (MAMP par défaut).
+   - **B. Override local** : `cp config/config.example.php config/config.local.php`, puis éditer.
 4. **Accéder à l'application** :
    - Si la doc-root est `todoList-app/public/` : `http://localhost/`
-   - Sinon : `http://localhost/todoList-app/public/` et ajuster `app.base_url` en conséquence.
+   - Sinon : `http://localhost/todoList-app/public/` et ajuster `APP_BASE_URL` ou `config.local.php`.
+
+## 🚀 Déploiement en production (AlwaysData)
+
+L'application est conçue pour fonctionner sur AlwaysData (recommandé par M. Christoffel) ou
+tout hébergeur LAMP standard. Voici la procédure complète :
+
+### 1. Préparer le compte AlwaysData
+
+1. Créer un compte gratuit sur https://www.alwaysdata.com/
+2. Dans le panel, noter votre nom d'utilisateur (ex. `lekesiz`).
+
+### 2. Créer la base de données MySQL
+
+1. Panel → **Bases de données** → **MySQL** → **Ajouter une base de données**.
+2. Nom : `todolist` (sera préfixé automatiquement, ex. `lekesiz_todolist`).
+3. Noter le **hôte** (ex. `mysql-lekesiz.alwaysdata.net`).
+4. Créer un utilisateur MySQL ou utiliser celui par défaut, noter le mot de passe.
+
+### 3. Importer le schéma + données
+
+1. Panel → **Bases de données** → **MySQL** → cliquer sur la base → **phpMyAdmin**.
+2. Onglet **Importer** → choisir [`database.sql`](./database.sql) (à la racine du repo).
+3. Cliquer **Exécuter**. Vérifier que les 8 tables sont créées avec les données.
+
+### 4. Déployer le code
+
+```bash
+# Connexion SSH (le panel fournit l'hôte, ex. ssh-lekesiz.alwaysdata.net)
+ssh lekesiz@ssh-lekesiz.alwaysdata.net
+
+# Cloner le repo dans le dossier www
+cd ~/www
+git clone https://github.com/lekesiz/sp-php-todolist-mikail.git
+```
+
+### 5. Configurer les variables d'environnement
+
+Créer `~/www/sp-php-todolist-mikail/public/.htaccess` (ou éditer l'existant) en ajoutant :
+
+```apache
+# Variables d'environnement pour la production
+SetEnv DB_HOST mysql-lekesiz.alwaysdata.net
+SetEnv DB_NAME lekesiz_todolist
+SetEnv DB_USER lekesiz
+SetEnv DB_PASSWORD VOTRE_MOT_DE_PASSE
+SetEnv APP_BASE_URL ""
+SetEnv APP_DEBUG false
+```
+
+> Alternativement, créer `config/config.local.php` (gitignored, donc à recréer sur le serveur)
+> à partir de `config.example.php` et y mettre vos identifiants.
+
+### 6. Configurer le site web AlwaysData
+
+1. Panel → **Sites Web** → **Ajouter un site**.
+2. **Adresses** : `<sous-domaine>.alwaysdata.net` (ou un domaine personnalisé).
+3. **Type de site** : `PHP`.
+4. **Version PHP** : 8.2 ou supérieure.
+5. **Chemin du document racine** : `/sp-php-todolist-mikail/public`
+   (⚠️ pointer sur `public/`, pas sur la racine du projet, pour la sécurité).
+6. Sauvegarder. Le site est actif sous quelques secondes.
+
+### 7. Vérifier
+
+Ouvrir `https://<sous-domaine>.alwaysdata.net/` — le tableau de bord doit s'afficher avec :
+- 4 cartes de compteurs par statut (À faire / En cours / Bloquée / Terminée)
+- Liste des 5 prochaines tâches
+- Charge par collaborateur
 
 ## Routes principales
 

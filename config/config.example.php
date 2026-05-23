@@ -1,7 +1,14 @@
 <?php
 /**
- * Configuration centrale de l'application.
- * Adapter les valeurs DB selon votre environnement local (MAMP, XAMPP, WAMP, Docker).
+ * Exemple de config.local.php pour override local.
+ *
+ * Si vous préférez ne pas dépendre de variables d'environnement,
+ * copiez ce fichier en `config.local.php` (gitignored) et modifiez vos valeurs.
+ *
+ *   cp config/config.example.php config/config.local.php
+ *
+ * Sinon, laissez `config.php` en place et définissez DB_HOST, DB_NAME, etc.
+ * dans .htaccess (SetEnv) ou dans votre shell.
  */
 
 return [
@@ -16,8 +23,9 @@ return [
 
     'app' => [
         'name'      => 'To Do List — SP PHP',
+        // Préfixe d'URL : '/todoList-app/public' en MAMP, '' en prod (docroot = public/).
         'base_url'  => '/todoList-app/public',
         'timezone'  => 'Europe/Paris',
-        'debug'     => true, // Désactiver en production
+        'debug'     => true,
     ],
 ];

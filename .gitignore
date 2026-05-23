@@ -31,5 +31,6 @@ tmp/
 *.sqlite
 *.db
 
-# Local DB credentials
-config/config.php
+# config/config.php est désormais commité (env-driven, pas de secrets).
+# Pour override local sans toucher le fichier commité, créez config/config.local.php.
+config/config.local.php
