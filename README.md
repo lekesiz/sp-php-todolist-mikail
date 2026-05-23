@@ -8,9 +8,12 @@ de M. Christoffel (22/05/2026) :
 
 ## 🔗 Application en ligne
 
-> **À DÉFINIR APRÈS DÉPLOIEMENT** — sera renseigné une fois le site activé sur AlwaysData.
+> **🚀 Démo live : https://mikaillekesiz.alwaysdata.net/**
 >
-> Pattern attendu : `https://<sous-domaine>.alwaysdata.net/`
+> - Tableau de bord : compteurs par statut, prochaines tâches, charge par collaborateur
+> - Liste des tâches : filtre par statut, recherche, pagination
+> - Gestion CRUD des collaborateurs et des affectations avec % d'investissement
+> - Hébergement : AlwaysData (PHP 8.4, MariaDB 11.4)
 
 ## 📦 Export SQL
 

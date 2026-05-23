@@ -1,5 +1,0 @@
-# Empêcher l'accès direct aux dossiers source en racine
-# (la doc-root doit pointer sur public/, mais ceci est une ceinture+bretelles)
-<FilesMatch "\.(php|sql|md)$">
-  Require all denied
-</FilesMatch>

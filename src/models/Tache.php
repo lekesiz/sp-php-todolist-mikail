@@ -32,9 +32,12 @@ final class Tache
             $params[':idStatut'] = (int) $filterStatut;
         }
         if ($search !== null && $search !== '') {
-            // FIX: full-text-ish recherche sur titre + description, paramétrée.
-            $sql .= ' AND (t.titreTache LIKE :search OR t.descriptionTache LIKE :search)';
-            $params[':search'] = '%' . $search . '%';
+            // Recherche LIKE paramétrée sur titre + description.
+            // Note : avec PDO::ATTR_EMULATE_PREPARES=false, un même nom de paramètre
+            // ne peut être réutilisé. On lie donc deux noms distincts pour la même valeur.
+            $sql .= ' AND (t.titreTache LIKE :search_title OR t.descriptionTache LIKE :search_desc)';
+            $params[':search_title'] = '%' . $search . '%';
+            $params[':search_desc']  = '%' . $search . '%';
         }
         $sql .= ' ORDER BY p.niveauPriorite DESC, t.dateEcheance ASC, t.dateCreation DESC';
 
@@ -59,8 +62,10 @@ final class Tache
             $params[':idStatut'] = (int) $filterStatut;
         }
         if ($search !== null && $search !== '') {
-            $sql .= ' AND (t.titreTache LIKE :search OR t.descriptionTache LIKE :search)';
-            $params[':search'] = '%' . $search . '%';
+            // Idem que ::all() — deux paramètres distincts pour le même motif LIKE.
+            $sql .= ' AND (t.titreTache LIKE :search_title OR t.descriptionTache LIKE :search_desc)';
+            $params[':search_title'] = '%' . $search . '%';
+            $params[':search_desc']  = '%' . $search . '%';
         }
         $stmt = Database::getInstance()->prepare($sql);
         $stmt->execute($params);
